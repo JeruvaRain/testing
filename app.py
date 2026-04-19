@@ -16,6 +16,21 @@ import matplotlib.pyplot as plt
 # Load data
 df = pd.read_csv("ineq_data.csv")
 
+# Select data
+all_countries = sorted(df["Entity"].unique())
+
+selected_countries = st.sidebar.multiselect(
+    "Countries to display",
+    options=all_countries,
+    default=all_countries  # or a subset if you prefer
+)
+
+# Filter data
+if selected_countries:
+    df_view = df[df["Entity"].isin(selected_countries)]
+else:
+    df_view = df.copy()
+
 # Fit regression
 reg_data = df[["Gini coefficient", "log_gdp_pc", "cons_pct_gdp"]].dropna()
 X = reg_data[["log_gdp_pc", "cons_pct_gdp"]]
@@ -54,15 +69,70 @@ X_new = pd.DataFrame({
 })
 predicted_gini = model.predict(X_new)[0]
 
-st.subheader("Predicted inequality for chosen values")
-st.write(f"**Predicted Gini coefficient:** {predicted_gini:.3f}")
-
-st.subheader("Observed data and your chosen point")
+# Plotting
+st.subheader("Observed data for selected countries")
 
 fig, ax = plt.subplots(figsize=(6, 4))
-ax.scatter(df["log_gdp_pc"], df["Gini coefficient"], alpha=0.4, label="Observed")
-ax.scatter([log_gdp], [predicted_gini], color="red", label="Your choice")
+
+for c in selected_countries:
+    subset = df_view[df_view["Entity"] == c]
+    ax.scatter(
+        subset["log_gdp_pc"],
+        subset["Gini coefficient"],
+        alpha=0.6,
+        label=c
+    )
+
+# Highlight chosen point (still based on sliders)
+ax.scatter(
+    [log_gdp],
+    [predicted_gini],
+    color="red",
+    edgecolor="black",
+    label="Your choice"
+)
+
 ax.set_xlabel("log(GDP per capita)")
 ax.set_ylabel("Gini coefficient")
 ax.legend()
 st.pyplot(fig)
+
+# Description
+st.subheader("Summary statistics for selected countries")
+
+summary = (
+    df_view[["Entity", "Gini coefficient", "GDP per capita", "cons_pct_gdp"]]
+    .groupby("Entity")
+    .agg({
+        "Gini coefficient": "mean",
+        "GDP per capita": "mean",
+        "cons_pct_gdp": "mean",
+    })
+    .rename(columns={
+        "Gini coefficient": "Mean Gini",
+        "GDP per capita": "Mean GDP pc",
+        "cons_pct_gdp": "Mean cons % GDP",
+    })
+    .round(3)
+)
+
+st.dataframe(summary)
+
+# Consumption VS Gini
+st.subheader("Consumption share vs inequality")
+
+fig2, ax2 = plt.subplots(figsize=(6, 4))
+
+for c in selected_countries:
+    subset = df_view[df_view["Entity"] == c]
+    ax2.scatter(
+        subset["cons_pct_gdp"],
+        subset["Gini coefficient"],
+        alpha=0.6,
+        label=c
+    )
+
+ax2.set_xlabel("Final consumption expenditure (% of GDP)")
+ax2.set_ylabel("Gini coefficient")
+ax2.legend()
+st.pyplot(fig2)
