@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+import altair as alt
 
 # -----------------------
 # Load data
@@ -79,22 +80,27 @@ st.write(f"Showing data for **{year_min}–{year_max}**.")
 # -----------------------
 st.subheader("GDP per capita vs inequality")
 
-fig, ax = plt.subplots(figsize=(6, 4))
-
-for c in sorted(df_view["Entity"].unique()):
-    subset = df_view[df_view["Entity"] == c]
-    ax.scatter(
-        subset["log_gdp_pc"],
-        subset["Gini coefficient"],
-        alpha=0.6,
-        label=c
+if not df_view.empty:
+    scatter_gdp = (
+        alt.Chart(df_view)
+        .mark_circle(size=60, opacity=0.7)
+        .encode(
+            x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
+            y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
+            color=alt.Color("Entity:N", title="Country"),
+            tooltip=[
+                alt.Tooltip("Entity:N", title="Country"),
+                alt.Tooltip("Year:O", title="Year"),
+                alt.Tooltip("Gini coefficient:Q", title="Gini"),
+                alt.Tooltip("GDP per capita:Q", title="GDP pc"),
+                alt.Tooltip("cons_pct_gdp:Q", title="Cons % GDP"),
+            ],
+        )
+        .interactive()
     )
-
-ax.set_xlabel("log(GDP per capita)")
-ax.set_ylabel("Gini coefficient")
-if df_view["Entity"].nunique() <= 10:
-    ax.legend()
-st.pyplot(fig)
+    st.altair_chart(scatter_gdp, use_container_width=True)
+else:
+    st.write("No data for the selected filters.")
 
 # -----------------------
 # Summary table
