@@ -132,22 +132,28 @@ else:
 # -----------------------
 st.subheader("Consumption share vs inequality")
 
-fig2, ax2 = plt.subplots(figsize=(6, 4))
-
-for c in sorted(df_view["Entity"].unique()):
-    subset = df_view[df_view["Entity"] == c]
-    ax2.scatter(
-        subset["cons_pct_gdp"],
-        subset["Gini coefficient"],
-        alpha=0.6,
-        label=c
+if not df_view.empty:
+    scatter_cons = (
+        alt.Chart(df_view)
+        .mark_circle(size=60, opacity=0.7)
+        .encode(
+            x=alt.X("cons_pct_gdp:Q",
+                    title="Final consumption expenditure (% of GDP)"),
+            y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
+            color=alt.Color("Entity:N", title="Country"),
+            tooltip=[
+                alt.Tooltip("Entity:N", title="Country"),
+                alt.Tooltip("Year:O", title="Year"),
+                alt.Tooltip("Gini coefficient:Q", title="Gini"),
+                alt.Tooltip("GDP per capita:Q", title="GDP pc"),
+                alt.Tooltip("cons_pct_gdp:Q", title="Cons % GDP"),
+            ],
+        )
+        .interactive()
     )
-
-ax2.set_xlabel("Final consumption expenditure (% of GDP)")
-ax2.set_ylabel("Gini coefficient")
-if df_view["Entity"].nunique() <= 10:
-    ax2.legend()
-st.pyplot(fig2)
+    st.altair_chart(scatter_cons, use_container_width=True)
+else:
+    st.write("No data for the selected filters.")
 
 # -----------------------
 # Optional: brief model info
