@@ -4,7 +4,7 @@
   "metadata": {
     "colab": {
       "provenance": [],
-      "authorship_tag": "ABX9TyM3uCoWNnwTWcQD6hY3jxl3"
+      "authorship_tag": "ABX9TyOPtWcgcF1lp8ifnjJpEQZd"
     },
     "kernelspec": {
       "name": "python3",
@@ -94,6 +94,21 @@
         ")\n",
         "\n",
         "st.write(f\"Showing data for **{year_min}–{year_max}**.\")\n",
+        "\n",
+        "# Righ after title\n",
+        "\n",
+        "col1, col2 = st.columns([2, 3])\n",
+        "\n",
+        "with col1:\n",
+        "    st.write(\n",
+        "        \"Use the filters on the left to choose countries and years. \"\n",
+        "        \"The charts show how GDP per capita and consumption relate to \"\n",
+        "        \"income inequality (Gini). Hover over points for details.\"\n",
+        "    )\n",
+        "\n",
+        "with col2:\n",
+        "    st.metric(\"Number of countries\", df_view[\"Entity\"].nunique())\n",
+        "    st.metric(\"Number of observations\", len(df_view))\n",
         "\n",
         "# -----------------------\n",
         "# Plot 1: GDP vs Gini\n",
