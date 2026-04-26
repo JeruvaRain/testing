@@ -1,113 +1,84 @@
-{
-  "nbformat": 4,
-  "nbformat_minor": 0,
-  "metadata": {
-    "colab": {
-      "provenance": [],
-      "authorship_tag": "ABX9TyMxrMBSE9jls+oqf8vik1Mf"
-    },
-    "kernelspec": {
-      "name": "python3",
-      "display_name": "Python 3"
-    },
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "cells": [
-    {
-      "cell_type": "code",
-      "source": [
-        "# -*- coding: utf-8 -*-\n",
-        "import streamlit as st\n",
-        "import pandas as pd\n",
-        "import numpy as np\n",
-        "import statsmodels.api as sm\n",
-        "import matplotlib.pyplot as plt\n",
-        "import altair as alt\n",
-        "\n",
-        "# -----------------------\n",
-        "# Load data\n",
-        "# -----------------------\n",
-        "@st.cache_data\n",
-        "def load_data():\n",
-        "    df = pd.read_csv(\"ineq_data.csv\")\n",
-        "    df[\"Year\"] = df[\"Year\"].astype(int)\n",
-        "    return df\n",
-        "\n",
-        "df = load_data()\n",
-        "\n",
-        "# -----------------------\n",
-        "# Sidebar filters\n",
-        "# -----------------------\n",
-        "st.sidebar.header(\"Filters\")\n",
-        "\n",
-        "# Country multiselect (all countries available in the dataset)\n",
-        "all_countries = sorted(df[\"Entity\"].unique())\n",
-        "selected_countries = st.sidebar.multiselect(\n",
-        "    \"Countries to display\",\n",
-        "    options=all_countries,\n",
-        "    default=all_countries[:10] if len(all_countries) > 10 else all_countries\n",
-        ")\n",
-        "\n",
-        "# Optional region filter if you later add a 'Region' column to the CSV\n",
-        "# all_regions = [\"All\"] + sorted(df[\"Region\"].dropna().unique())\n",
-        "# selected_region = st.sidebar.selectbox(\"Region\", options=all_regions)\n",
-        "\n",
-        "# Year range slider\n",
-        "min_year = int(df[\"Year\"].min())\n",
-        "max_year = int(df[\"Year\"].max())\n",
-        "\n",
-        "year_min, year_max = st.sidebar.slider(\n",
-        "    \"Year range\",\n",
-        "    min_value=min_year,\n",
-        "    max_value=max_year,\n",
-        "    value=(min_year, max_year)\n",
-        ")\n",
-        "\n",
-        "# -----------------------\n",
-        "# Apply filters\n",
-        "# -----------------------\n",
-        "df_view = df.copy()\n",
-        "\n",
-        "if selected_countries:\n",
-        "    df_view = df_view[df_view[\"Entity\"].isin(selected_countries)]\n",
-        "\n",
-        "# If you add a Region column later, uncomment this:\n",
-        "# if selected_region != \"All\":\n",
-        "#     df_view = df_view[df_view[\"Region\"] == selected_region]\n",
-        "\n",
-        "df_view = df_view[(df_view[\"Year\"] >= year_min) & (df_view[\"Year\"] <= year_max)]\n",
-        "\n",
-        "# -----------------------\n",
-        "# Fit regression on filtered data\n",
-        "# -----------------------\n",
-        "reg_data = df_view[[\"Gini coefficient\", \"log_gdp_pc\", \"cons_pct_gdp\"]].dropna()\n",
-        "\n",
-        "if len(reg_data) > 10:\n",
-        "    X = reg_data[[\"log_gdp_pc\", \"cons_pct_gdp\"]]\n",
-        "    X = sm.add_constant(X)\n",
-        "    y = reg_data[\"Gini coefficient\"]\n",
-        "    model = sm.OLS(y, X).fit()\n",
-        "else:\n",
-        "    model = None\n",
-        "\n",
-        "# -----------------------\n",
-        "# Layout: title, description, metrics\n",
-        "# -----------------------\n",
-        "st.title(\"Inequality, Growth and Consumption\")\n",
-        "\n",
-        "st.write(\n",
-        "    \"Explore how income levels and final consumption expenditure \"\n",
-        "    \"(% of GDP) relate to the Gini coefficient. Use the filters on \"\n",
-        "    \"the left to select countries and years. Hover over points in \"\n",
-        "    \"the charts to see details for"
-      ],
-      "metadata": {
-        "id": "EzxlDZB6nlgA"
-      },
-      "execution_count": null,
-      "outputs": []
-    }
-  ]
-}
+# -*- coding: utf-8 -*-
+import streamlit as st
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+import altair as alt
+
+# -----------------------
+# Load data
+# -----------------------
+@st.cache_data
+def load_data():
+    df = pd.read_csv("ineq_data.csv")
+    df["Year"] = df["Year"].astype(int)
+    return df
+
+df = load_data()
+
+# -----------------------
+# Sidebar filters
+# -----------------------
+st.sidebar.header("Filters")
+
+# Country multiselect (all countries available in the dataset)
+all_countries = sorted(df["Entity"].unique())
+selected_countries = st.sidebar.multiselect(
+    "Countries to display",
+    options=all_countries,
+    default=all_countries[:10] if len(all_countries) > 10 else all_countries
+)
+
+# Optional region filter if you later add a 'Region' column to the CSV
+# all_regions = ["All"] + sorted(df["Region"].dropna().unique())
+# selected_region = st.sidebar.selectbox("Region", options=all_regions)
+
+# Year range slider
+min_year = int(df["Year"].min())
+max_year = int(df["Year"].max())
+
+year_min, year_max = st.sidebar.slider(
+    "Year range",
+    min_value=min_year,
+    max_value=max_year,
+    value=(min_year, max_year)
+)
+
+# -----------------------
+# Apply filters
+# -----------------------
+df_view = df.copy()
+
+if selected_countries:
+    df_view = df_view[df_view["Entity"].isin(selected_countries)]
+
+# If you add a Region column later, uncomment this:
+# if selected_region != "All":
+#     df_view = df_view[df_view["Region"] == selected_region]
+
+df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
+
+# -----------------------
+# Fit regression on filtered data
+# -----------------------
+reg_data = df_view[["Gini coefficient", "log_gdp_pc", "cons_pct_gdp"]].dropna()
+
+if len(reg_data) > 10:
+    X = reg_data[["log_gdp_pc", "cons_pct_gdp"]]
+    X = sm.add_constant(X)
+    y = reg_data["Gini coefficient"]
+    model = sm.OLS(y, X).fit()
+else:
+    model = None
+
+# -----------------------
+# Layout: title, description, metrics
+# -----------------------
+st.title("Inequality, Growth and Consumption")
+
+st.write(
+    "Explore how income levels and final consumption expenditure "
+    "(% of GDP) relate to the Gini coefficient. Use the filters on "
+    "the left to select countries and years. Hover over points in "
+    "the charts to see details for 
