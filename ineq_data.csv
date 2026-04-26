@@ -1,12 +1,10 @@
 import pandas as pd
 import numpy as np
 
-# ---------- 1. Load local OWID GDP & Gini files ----------
-# Make sure these filenames match what you uploaded to Colab
+# ---------- 1. Load local OWID GDP & Gini ----------
 gdp = pd.read_csv("gdp-per-capita-worldbank-constant-usd.csv")
 gini = pd.read_csv("economic-inequality-gini-index.csv")
 
-# Clean GDP: keep Entity, Code, Year, GDP per capita
 gdp = gdp.rename(columns={
     "Entity": "Entity",
     "Code": "Code",
@@ -15,7 +13,6 @@ gdp = gdp.rename(columns={
 })
 gdp = gdp[["Entity", "Code", "Year", "GDP per capita"]]
 
-# Clean Gini: Entity, Year, Gini coefficient
 gini = gini.rename(columns={
     "Entity": "Entity",
     "Year": "Year",
@@ -23,16 +20,15 @@ gini = gini.rename(columns={
 })
 gini = gini[["Entity", "Year", "Gini coefficient"]]
 
-# ---------- 2. Download & reshape consumption % of GDP from World Bank ----------
-cons_url = "https://api.worldbank.org/v2/en/country/all/indicator/NE.CON.TOTL.ZS?format=csv"
-cons_raw = pd.read_csv(cons_url, skiprows=4)  # skip metadata rows
+# ---------- 2. Load local World Bank consumption CSV ----------
+# change the filename below to match exactly what you uploaded
+cons_raw = pd.read_csv("API_NE.CON.TOTL.ZS_DS2_EN_csv_v2_4142.csv", skiprows=4)
 
 cons = cons_raw.rename(columns={
     "Country Name": "Entity",
     "Country Code": "Code"
 })
 
-# Wide → long: years as rows
 cons = cons.melt(
     id_vars=["Entity", "Code"],
     var_name="Year",
@@ -42,20 +38,14 @@ cons = cons.melt(
 cons["Year"] = cons["Year"].astype(int)
 cons = cons[["Entity", "Code", "Year", "cons_pct_gdp"]]
 
-# ---------- 3. Merge to global panel ----------
-# Merge GDP and consumption on Entity, Code, Year
+# ---------- 3. Merge ----------
 df = gdp.merge(cons, on=["Entity", "Code", "Year"], how="inner")
-
-# Merge Gini on Entity + Year (OWID Gini has no Code)
 df = df.merge(gini, on=["Entity", "Year"], how="inner")
 
-# ---------- 4. Create log GDP per capita ----------
 df["log_gdp_pc"] = np.log(df["GDP per capita"])
 
-# ---------- 5. Save final file ----------
 df.to_csv("ineq_data.csv", index=False)
 
-# Quick sanity check
 print(df.head())
 print(df.columns)
 print(df.shape)
