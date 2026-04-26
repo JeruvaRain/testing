@@ -1,175 +1,204 @@
-# -*- coding: utf-8 -*-
-import streamlit as st
-import pandas as pd
-import numpy as np
-import statsmodels.api as sm
-import matplotlib.pyplot as plt
-import altair as alt
-
-# -----------------------
-# Load data
-# -----------------------
-df = pd.read_csv("ineq_data.csv")
-
-# Ensure Year is integer (just in case)
-df["Year"] = df["Year"].astype(int)
-
-# -----------------------
-# Sidebar filters
-# -----------------------
-st.sidebar.header("Filters")
-
-# Country multiselect
-all_countries = sorted(df["Entity"].unique())
-selected_countries = st.sidebar.multiselect(
-    "Countries to display",
-    options=all_countries,
-    default=all_countries
-)
-
-# Year range slider
-min_year = int(df["Year"].min())
-max_year = int(df["Year"].max())
-
-year_min, year_max = st.sidebar.slider(
-    "Year range",
-    min_value=min_year,
-    max_value=max_year,
-    value=(min_year, max_year)
-)
-
-# -----------------------
-# Apply filters
-# -----------------------
-if selected_countries:
-    df_view = df[df["Entity"].isin(selected_countries)]
-else:
-    df_view = df.copy()
-
-df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
-
-# -----------------------
-# Fit regression on filtered data
-# (still using log_gdp_pc and cons_pct_gdp)
-# -----------------------
-reg_data = df_view[["Gini coefficient", "log_gdp_pc", "cons_pct_gdp"]].dropna()
-
-if len(reg_data) > 10:
-    X = reg_data[["log_gdp_pc", "cons_pct_gdp"]]
-    X = sm.add_constant(X)
-    y = reg_data["Gini coefficient"]
-    model = sm.OLS(y, X).fit()
-else:
-    model = None
-
-# -----------------------
-# Main title and description
-# -----------------------
-st.title("Inequality, Growth and Consumption")
-
-st.write(
-    "Explore how income levels and final consumption expenditure "
-    "(% of GDP) relate to the Gini coefficient for a selected set "
-    "of countries and years."
-)
-
-st.write(f"Showing data for **{year_min}–{year_max}**.")
-
-# -----------------------
-# Plot 1: GDP vs Gini
-# -----------------------
-st.subheader("GDP per capita vs inequality")
-
-if not df_view.empty:
-    scatter_gdp = (
-        alt.Chart(df_view)
-        .mark_circle(size=60, opacity=0.7)
-        .encode(
-            x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
-            y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
-            color=alt.Color("Entity:N", title="Country"),
-            tooltip=[
-                alt.Tooltip("Entity:N", title="Country"),
-                alt.Tooltip("Year:O", title="Year"),
-                alt.Tooltip("Gini coefficient:Q", title="Gini"),
-                alt.Tooltip("GDP per capita:Q", title="GDP pc"),
-                alt.Tooltip("cons_pct_gdp:Q", title="Cons % GDP"),
-            ],
-        )
-        .interactive()
-    )
-    st.altair_chart(scatter_gdp, use_container_width=True)
-else:
-    st.write("No data for the selected filters.")
-
-# -----------------------
-# Summary table
-# -----------------------
-st.subheader("Summary statistics for selected countries")
-
-if not df_view.empty:
-    summary = (
-        df_view[["Entity", "Gini coefficient", "GDP per capita", "cons_pct_gdp"]]
-        .groupby("Entity")
-        .agg({
-            "Gini coefficient": "mean",
-            "GDP per capita": "mean",
-            "cons_pct_gdp": "mean",
-        })
-        .rename(columns={
-            "Gini coefficient": "Mean Gini",
-            "GDP per capita": "Mean GDP pc",
-            "cons_pct_gdp": "Mean cons % GDP",
-        })
-        .round(3)
-    )
-    st.dataframe(summary)
-else:
-    st.write("No data for the selected filters.")
-
-# -----------------------
-# Plot 2: Consumption vs Gini
-# -----------------------
-st.subheader("Consumption share vs inequality")
-
-if not df_view.empty:
-    scatter_cons = (
-        alt.Chart(df_view)
-        .mark_circle(size=60, opacity=0.7)
-        .encode(
-            x=alt.X("cons_pct_gdp:Q",
-                    title="Final consumption expenditure (% of GDP)"),
-            y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
-            color=alt.Color("Entity:N", title="Country"),
-            tooltip=[
-                alt.Tooltip("Entity:N", title="Country"),
-                alt.Tooltip("Year:O", title="Year"),
-                alt.Tooltip("Gini coefficient:Q", title="Gini"),
-                alt.Tooltip("GDP per capita:Q", title="GDP pc"),
-                alt.Tooltip("cons_pct_gdp:Q", title="Cons % GDP"),
-            ],
-        )
-        .interactive()
-    )
-    st.altair_chart(scatter_cons, use_container_width=True)
-else:
-    st.write("No data for the selected filters.")
-
-# -----------------------
-# Optional: brief model info
-# -----------------------
-if model is not None:
-    st.subheader("Model snapshot (filtered data)")
-    st.write(
-        "Simple OLS regression of Gini on log(GDP per capita) and "
-        "consumption share (% of GDP) for the currently selected "
-        "countries and years."
-    )
-    coef_df = pd.DataFrame({
-        "coef": model.params,
-        "std_err": model.bse,
-        "p_value": model.pvalues
-    }).round(4)
-    st.dataframe(coef_df)
-else:
-    st.write("Not enough data in the current filter to estimate the regression.")
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyM3uCoWNnwTWcQD6hY3jxl3"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "# -*- coding: utf-8 -*-\n",
+        "import streamlit as st\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import statsmodels.api as sm\n",
+        "import matplotlib.pyplot as plt\n",
+        "import altair as alt\n",
+        "\n",
+        "# -----------------------\n",
+        "# Load data\n",
+        "# -----------------------\n",
+        "df = pd.read_csv(\"ineq_data.csv\")\n",
+        "\n",
+        "# Ensure Year is integer (just in case)\n",
+        "df[\"Year\"] = df[\"Year\"].astype(int)\n",
+        "\n",
+        "# -----------------------\n",
+        "# Sidebar filters\n",
+        "# -----------------------\n",
+        "st.sidebar.header(\"Filters\")\n",
+        "\n",
+        "# Country multiselect\n",
+        "all_countries = sorted(df[\"Entity\"].unique())\n",
+        "selected_countries = st.sidebar.multiselect(\n",
+        "    \"Countries to display\",\n",
+        "    options=all_countries,\n",
+        "    default=all_countries\n",
+        ")\n",
+        "\n",
+        "# Year range slider\n",
+        "min_year = int(df[\"Year\"].min())\n",
+        "max_year = int(df[\"Year\"].max())\n",
+        "\n",
+        "year_min, year_max = st.sidebar.slider(\n",
+        "    \"Year range\",\n",
+        "    min_value=min_year,\n",
+        "    max_value=max_year,\n",
+        "    value=(min_year, max_year)\n",
+        ")\n",
+        "\n",
+        "# -----------------------\n",
+        "# Apply filters\n",
+        "# -----------------------\n",
+        "if selected_countries:\n",
+        "    df_view = df[df[\"Entity\"].isin(selected_countries)]\n",
+        "else:\n",
+        "    df_view = df.copy()\n",
+        "\n",
+        "df_view = df_view[(df_view[\"Year\"] >= year_min) & (df_view[\"Year\"] <= year_max)]\n",
+        "\n",
+        "# -----------------------\n",
+        "# Fit regression on filtered data\n",
+        "# (still using log_gdp_pc and cons_pct_gdp)\n",
+        "# -----------------------\n",
+        "reg_data = df_view[[\"Gini coefficient\", \"log_gdp_pc\", \"cons_pct_gdp\"]].dropna()\n",
+        "\n",
+        "if len(reg_data) > 10:\n",
+        "    X = reg_data[[\"log_gdp_pc\", \"cons_pct_gdp\"]]\n",
+        "    X = sm.add_constant(X)\n",
+        "    y = reg_data[\"Gini coefficient\"]\n",
+        "    model = sm.OLS(y, X).fit()\n",
+        "else:\n",
+        "    model = None\n",
+        "\n",
+        "# -----------------------\n",
+        "# Main title and description\n",
+        "# -----------------------\n",
+        "st.title(\"Inequality, Growth and Consumption\")\n",
+        "\n",
+        "st.write(\n",
+        "    \"Explore how income levels and final consumption expenditure \"\n",
+        "    \"(% of GDP) relate to the Gini coefficient for a selected set \"\n",
+        "    \"of countries and years.\"\n",
+        ")\n",
+        "\n",
+        "st.write(f\"Showing data for **{year_min}–{year_max}**.\")\n",
+        "\n",
+        "# -----------------------\n",
+        "# Plot 1: GDP vs Gini\n",
+        "# -----------------------\n",
+        "st.subheader(\"GDP per capita vs inequality\")\n",
+        "\n",
+        "if not df_view.empty:\n",
+        "    scatter_gdp = (\n",
+        "        alt.Chart(df_view)\n",
+        "        .mark_circle(size=60, opacity=0.7)\n",
+        "        .encode(\n",
+        "            x=alt.X(\"log_gdp_pc:Q\", title=\"log(GDP per capita)\"),\n",
+        "            y=alt.Y(\"Gini coefficient:Q\", title=\"Gini coefficient\"),\n",
+        "            color=alt.Color(\"Entity:N\", title=\"Country\"),\n",
+        "            tooltip=[\n",
+        "                alt.Tooltip(\"Entity:N\", title=\"Country\"),\n",
+        "                alt.Tooltip(\"Year:O\", title=\"Year\"),\n",
+        "                alt.Tooltip(\"Gini coefficient:Q\", title=\"Gini\"),\n",
+        "                alt.Tooltip(\"GDP per capita:Q\", title=\"GDP pc\"),\n",
+        "                alt.Tooltip(\"cons_pct_gdp:Q\", title=\"Cons % GDP\"),\n",
+        "            ],\n",
+        "        )\n",
+        "        .interactive()\n",
+        "    )\n",
+        "    st.altair_chart(scatter_gdp, use_container_width=True)\n",
+        "else:\n",
+        "    st.write(\"No data for the selected filters.\")\n",
+        "\n",
+        "# -----------------------\n",
+        "# Summary table\n",
+        "# -----------------------\n",
+        "st.subheader(\"Summary statistics for selected countries\")\n",
+        "\n",
+        "if not df_view.empty:\n",
+        "    summary = (\n",
+        "        df_view[[\"Entity\", \"Gini coefficient\", \"GDP per capita\", \"cons_pct_gdp\"]]\n",
+        "        .groupby(\"Entity\")\n",
+        "        .agg({\n",
+        "            \"Gini coefficient\": \"mean\",\n",
+        "            \"GDP per capita\": \"mean\",\n",
+        "            \"cons_pct_gdp\": \"mean\",\n",
+        "        })\n",
+        "        .rename(columns={\n",
+        "            \"Gini coefficient\": \"Mean Gini\",\n",
+        "            \"GDP per capita\": \"Mean GDP pc\",\n",
+        "            \"cons_pct_gdp\": \"Mean cons % GDP\",\n",
+        "        })\n",
+        "        .round(3)\n",
+        "    )\n",
+        "    st.dataframe(summary)\n",
+        "else:\n",
+        "    st.write(\"No data for the selected filters.\")\n",
+        "\n",
+        "# -----------------------\n",
+        "# Plot 2: Consumption vs Gini\n",
+        "# -----------------------\n",
+        "st.subheader(\"Consumption share vs inequality\")\n",
+        "\n",
+        "if not df_view.empty:\n",
+        "    scatter_cons = (\n",
+        "        alt.Chart(df_view)\n",
+        "        .mark_circle(size=60, opacity=0.7)\n",
+        "        .encode(\n",
+        "            x=alt.X(\"cons_pct_gdp:Q\",\n",
+        "                    title=\"Final consumption expenditure (% of GDP)\"),\n",
+        "            y=alt.Y(\"Gini coefficient:Q\", title=\"Gini coefficient\"),\n",
+        "            color=alt.Color(\"Entity:N\", title=\"Country\"),\n",
+        "            tooltip=[\n",
+        "                alt.Tooltip(\"Entity:N\", title=\"Country\"),\n",
+        "                alt.Tooltip(\"Year:O\", title=\"Year\"),\n",
+        "                alt.Tooltip(\"Gini coefficient:Q\", title=\"Gini\"),\n",
+        "                alt.Tooltip(\"GDP per capita:Q\", title=\"GDP pc\"),\n",
+        "                alt.Tooltip(\"cons_pct_gdp:Q\", title=\"Cons % GDP\"),\n",
+        "            ],\n",
+        "        )\n",
+        "        .interactive()\n",
+        "    )\n",
+        "    st.altair_chart(scatter_cons, use_container_width=True)\n",
+        "else:\n",
+        "    st.write(\"No data for the selected filters.\")\n",
+        "\n",
+        "# -----------------------\n",
+        "# Optional: brief model info\n",
+        "# -----------------------\n",
+        "if model is not None:\n",
+        "    st.subheader(\"Model snapshot (filtered data)\")\n",
+        "    st.write(\n",
+        "        \"Simple OLS regression of Gini on log(GDP per capita) and \"\n",
+        "        \"consumption share (% of GDP) for the currently selected \"\n",
+        "        \"countries and years.\"\n",
+        "    )\n",
+        "    coef_df = pd.DataFrame({\n",
+        "        \"coef\": model.params,\n",
+        "        \"std_err\": model.bse,\n",
+        "        \"p_value\": model.pvalues\n",
+        "    }).round(4)\n",
+        "    st.dataframe(coef_df)\n",
+        "else:\n",
+        "    st.write(\"Not enough data in the current filter to estimate the regression.\")"
+      ],
+      "metadata": {
+        "id": "EzxlDZB6nlgA"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
