@@ -1,51 +1,114 @@
-import pandas as pd
-import numpy as np
-
-# ---------- 1. Load local OWID GDP & Gini ----------
-gdp = pd.read_csv("gdp-per-capita-worldbank-constant-usd.csv")
-gini = pd.read_csv("economic-inequality-gini-index.csv")
-
-gdp = gdp.rename(columns={
-    "Entity": "Entity",
-    "Code": "Code",
-    "Year": "Year",
-    "gdp-per-capita-worldbank-constant-usd": "GDP per capita"
-})
-gdp = gdp[["Entity", "Code", "Year", "GDP per capita"]]
-
-gini = gini.rename(columns={
-    "Entity": "Entity",
-    "Year": "Year",
-    "economic-inequality-gini-index": "Gini coefficient"
-})
-gini = gini[["Entity", "Year", "Gini coefficient"]]
-
-# ---------- 2. Load local World Bank consumption CSV ----------
-# change the filename below to match exactly what you uploaded
-cons_raw = pd.read_csv("API_NE.CON.TOTL.ZS_DS2_EN_csv_v2_4142.csv", skiprows=4)
-
-cons = cons_raw.rename(columns={
-    "Country Name": "Entity",
-    "Country Code": "Code"
-})
-
-cons = cons.melt(
-    id_vars=["Entity", "Code"],
-    var_name="Year",
-    value_name="cons_pct_gdp"
-)
-
-cons["Year"] = cons["Year"].astype(int)
-cons = cons[["Entity", "Code", "Year", "cons_pct_gdp"]]
-
-# ---------- 3. Merge ----------
-df = gdp.merge(cons, on=["Entity", "Code", "Year"], how="inner")
-df = df.merge(gini, on=["Entity", "Year"], how="inner")
-
-df["log_gdp_pc"] = np.log(df["GDP per capita"])
-
-df.to_csv("ineq_data.csv", index=False)
-
-print(df.head())
-print(df.columns)
-print(df.shape)
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOw1CrZy3lUVP45YUN34r2U"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "# ---------- 1. Load local OWID GDP & Gini ----------\n",
+        "gdp = pd.read_csv(\"gdp-per-capita-worldbank-constant-usd.csv\")\n",
+        "gini = pd.read_csv(\"economic-inequality-gini-index.csv\")\n",
+        "\n",
+        "gdp = gdp.rename(columns={\n",
+        "    \"Entity\": \"Entity\",\n",
+        "    \"Code\": \"Code\",\n",
+        "    \"Year\": \"Year\",\n",
+        "    \"gdp-per-capita-worldbank-constant-usd\": \"GDP per capita\"\n",
+        "})\n",
+        "gdp = gdp[[\"Entity\", \"Code\", \"Year\", \"GDP per capita\"]]\n",
+        "\n",
+        "gini = gini.rename(columns={\n",
+        "    \"Entity\": \"Entity\",\n",
+        "    \"Year\": \"Year\",\n",
+        "    \"economic-inequality-gini-index\": \"Gini coefficient\"\n",
+        "})\n",
+        "gini = gini[[\"Entity\", \"Year\", \"Gini coefficient\"]]\n",
+        "\n",
+        "# ---------- 2. Load local World Bank consumption CSV ----------\n",
+        "# change filename to your actual one\n",
+        "cons_raw = pd.read_csv(\"API_NE.CON.TOTL.ZS_DS2_EN_csv_v2_4142.csv\", skiprows=4)\n",
+        "\n",
+        "cons = cons_raw.rename(columns={\n",
+        "    \"Country Name\": \"Entity\",\n",
+        "    \"Country Code\": \"Code\"\n",
+        "})\n",
+        "\n",
+        "# Keep only year columns + IDs. World Bank years are like '1960', '1961', ..., '2024'\n",
+        "year_cols = [c for c in cons.columns if c.isdigit()]\n",
+        "cons = cons[[\"Entity\", \"Code\"] + year_cols]\n",
+        "\n",
+        "# Wide → long: one row per country-year\n",
+        "cons = cons.melt(\n",
+        "    id_vars=[\"Entity\", \"Code\"],\n",
+        "    var_name=\"Year\",\n",
+        "    value_name=\"cons_pct_gdp\"\n",
+        ")\n",
+        "\n",
+        "# Now Year is guaranteed to be only digits\n",
+        "cons[\"Year\"] = cons[\"Year\"].astype(int)\n",
+        "cons = cons[[\"Entity\", \"Code\", \"Year\", \"cons_pct_gdp\"]]\n",
+        "\n",
+        "# ---------- 3. Merge ----------\n",
+        "df = gdp.merge(cons, on=[\"Entity\", \"Code\", \"Year\"], how=\"inner\")\n",
+        "df = df.merge(gini, on=[\"Entity\", \"Year\"], how=\"inner\")\n",
+        "\n",
+        "df[\"log_gdp_pc\"] = np.log(df[\"GDP per capita\"])\n",
+        "\n",
+        "df.to_csv(\"ineq_data.csv\", index=False)\n",
+        "\n",
+        "print(df.head())\n",
+        "print(df.columns)\n",
+        "print(df.shape)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "sJxoeWwL6lgo",
+        "outputId": "fa655b1f-63db-4897-f496-5c3dcd713930"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "    Entity Code  Year  GDP per capita  cons_pct_gdp  Gini coefficient  \\\n",
+            "0  Albania  ALB  1996       1683.7697    100.273977          0.270103   \n",
+            "1  Albania  ALB  2002       2297.1086     87.073757          0.317390   \n",
+            "2  Albania  ALB  2005       2712.8699     85.846340          0.305957   \n",
+            "3  Albania  ALB  2008       3345.9817     92.777553          0.299847   \n",
+            "4  Albania  ALB  2012       3771.8480     89.031789          0.289605   \n",
+            "\n",
+            "   log_gdp_pc  \n",
+            "0    7.428790  \n",
+            "1    7.739406  \n",
+            "2    7.905762  \n",
+            "3    8.115515  \n",
+            "4    8.235320  \n",
+            "Index(['Entity', 'Code', 'Year', 'GDP per capita', 'cons_pct_gdp',\n",
+            "       'Gini coefficient', 'log_gdp_pc'],\n",
+            "      dtype='object')\n",
+            "(2035, 7)\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
