@@ -43,6 +43,10 @@ selected_countries = st.sidebar.multiselect(
     default=all_countries[:10] if len(all_countries) > 10 else all_countries
 )
 
+# Region selector (includes "All" option)
+all_regions = ["All"] + sorted(df["Region"].dropna().unique())
+selected_region = st.sidebar.selectbox("Region", options=all_regions, index=0)
+
 # Year range slider
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
@@ -59,9 +63,15 @@ year_min, year_max = st.sidebar.slider(
 # -----------------------
 df_view = df.copy()
 
+# Filter by region (if not "All")
+if selected_region != "All":
+    df_view = df_view[df_view["Region"] == selected_region]
+
+# Then filter by selected countries (within that region)
 if selected_countries:
     df_view = df_view[df_view["Entity"].isin(selected_countries)]
 
+# Finally, filter by year range
 df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
 
 # -----------------------
@@ -87,8 +97,7 @@ st.write(
     "(% of GDP) relate to the Gini coefficient. Use the filters on "
     "the left to select countries and years. Hover over points in "
     "the charts to see details for each country–year. "
-    "The blue line represents the regression results or what is "
-    "the expected tendency over the years."
+    "The blue line represents the regression results or what is the expected tendency over the years"
 )
 
 st.write(f"Currently showing data for **{year_min}–{year_max}**.")
@@ -123,19 +132,22 @@ with tab1:
                 x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    "Entity:N",
-                    title="Country",
-                    legend=alt.Legend(columns=2),
+                  "Region:N",
+                    title="Region",
+                      legend=alt.Legend(columns=2),
+                       scale=alt.Scale(scheme="tableau10"),
+                                ),
                     # optional custom palette:
                     # scale=alt.Scale(scheme="tableau20"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
+                    alt.Tooltip("Region:N", title="Region"),
                     alt.Tooltip("Year:O", title="Year"),
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
                     alt.Tooltip("cons_pct_gdp:Q", title="Cons % GDP", format=".2f"),
-                ],
+                        ],
             )
             .properties(height=400)
             .interactive()
