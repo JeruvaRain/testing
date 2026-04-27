@@ -18,8 +18,8 @@ def load_data():
     df = df.rename(columns={
         "log_gdp_per_capita": "log_gdp_pc",
         "Final consumption expenditure (% of GDP)": "cons_pct_gdp",
-        "gini": "Gini coefficient",  # adjust if needed
-        "gdp_per_capita": "GDP per capita",  # adjust if needed
+        "gini": "Gini coefficient",        # adjust if needed
+        "gdp_per_capita": "GDP per capita" # adjust if needed
     })
 
     # If log_gdp_pc is missing, create it
@@ -43,10 +43,6 @@ selected_countries = st.sidebar.multiselect(
     default=all_countries[:10] if len(all_countries) > 10 else all_countries
 )
 
-# Optional region filter if you later add a 'Region' column to the CSV
-# all_regions = ["All"] + sorted(df["Region"].dropna().unique())
-# selected_region = st.sidebar.selectbox("Region", options=all_regions)
-
 # Year range slider
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
@@ -65,10 +61,6 @@ df_view = df.copy()
 
 if selected_countries:
     df_view = df_view[df_view["Entity"].isin(selected_countries)]
-
-# If you add a Region column later, uncomment this:
-# if selected_region != "All":
-#     df_view = df_view[df_view["Region"] == selected_region]
 
 df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
 
@@ -145,7 +137,7 @@ with tab1:
             .interactive()
         )
 
-        # Regression line with its own legend label
+        # Regression line with its own legend label and bright color
         reg_line = (
             alt.Chart(df_view.assign(series="Regression line"))
             .transform_regression(
@@ -160,7 +152,7 @@ with tab1:
                 color=alt.Color(
                     "series:N",
                     title="",
-                    scale=alt.Scale(range=["white"]),  # choose line color
+                    scale=alt.Scale(range=["deepskyblue"]),  # bright cyan
                 ),
             )
         )
@@ -168,7 +160,6 @@ with tab1:
         st.altair_chart(scatter_gdp + reg_line, use_container_width=True)
     else:
         st.write("No data for the selected filters.")
-
 
 # -----------------------
 # Tab 2: Consumption vs Gini (Altair)
@@ -217,7 +208,7 @@ with tab2:
                 color=alt.Color(
                     "series:N",
                     title="",
-                    scale=alt.Scale(range=["white"]),  # choose line color
+                    scale=alt.Scale(range=["deepskyblue"]),  # same bright cyan
                 ),
             )
         )
