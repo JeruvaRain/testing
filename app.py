@@ -86,7 +86,7 @@ st.write(
     "Explore how income levels and final consumption expenditure "
     "(% of GDP) relate to the Gini coefficient. Use the filters on "
     "the left to select countries and years. Hover over points in "
-    "the charts to see details for each country–year."
+    "the charts to see details for each country–year. "
     "The blue line represents the regression result or the tendency"
 )
 
