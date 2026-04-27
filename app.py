@@ -97,7 +97,7 @@ st.write(
     "(% of GDP) relate to the Gini coefficient. Use the filters on "
     "the left to select countries and years. Hover over points in "
     "the charts to see details for each country–year. "
-    "The blue line represents the regression results or what is the expected tendency over the years"
+    "The blue line represents the regression results or what is the expected tendency over the years."
 )
 
 st.write(f"Currently showing data for **{year_min}–{year_max}**.")
@@ -132,13 +132,10 @@ with tab1:
                 x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                "Region:N",
-                  title="Region",
-                  legend=alt.Legend(columns=2),
-                  scale=alt.Scale(scheme="tableau10"),
-                                ),
-                    # optional custom palette:
-                    # scale=alt.Scale(scheme="tableau20"),
+                    "Region:N",
+                    title="Region",
+                    legend=alt.Legend(columns=2),
+                    scale=alt.Scale(scheme="tableau10"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
@@ -147,11 +144,12 @@ with tab1:
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
                     alt.Tooltip("cons_pct_gdp:Q", title="Cons % GDP", format=".2f"),
-                        ],
+                ],
             )
             .properties(height=400)
             .interactive()
-        
+        )
+
         # Regression line with a fixed color, NOT in color legend
         reg_line = (
             alt.Chart(df_view)
@@ -172,7 +170,6 @@ with tab1:
     else:
         st.write("No data for the selected filters.")
 
-
 # -----------------------
 # Tab 2: Consumption vs Gini (Altair)
 # -----------------------
@@ -190,13 +187,14 @@ with tab2:
                 ),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    "Entity:N",
-                    title="Country",
+                    "Region:N",
+                    title="Region",
                     legend=alt.Legend(columns=2),
-                    # scale=alt.Scale(scheme="tableau20"),
+                    scale=alt.Scale(scheme="tableau10"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
+                    alt.Tooltip("Region:N", title="Region"),
                     alt.Tooltip("Year:O", title="Year"),
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
