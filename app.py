@@ -128,8 +128,11 @@ with tab1:
             .encode(
                 x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
-                color=alt.Color("Entity:N", title="Country",
-                                legend=alt.Legend(columns=2)),
+                color=alt.Color(
+                    "Entity:N",
+                    title="Country",
+                    legend=alt.Legend(columns=2),
+                ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
                     alt.Tooltip("Year:O", title="Year"),
@@ -142,14 +145,30 @@ with tab1:
             .interactive()
         )
 
-        # Optional regression line (visual only)
-        reg_line = scatter_gdp.transform_regression(
-            "log_gdp_pc", "Gini coefficient"
-        ).mark_line(color="black")
+        # Regression line with its own legend label
+        reg_line = (
+            alt.Chart(df_view.assign(series="Regression line"))
+            .transform_regression(
+                "log_gdp_pc",
+                "Gini coefficient",
+                as_=["log_gdp_pc", "gini_pred"],
+            )
+            .mark_line(size=2)
+            .encode(
+                x="log_gdp_pc:Q",
+                y="gini_pred:Q",
+                color=alt.Color(
+                    "series:N",
+                    title="",
+                    scale=alt.Scale(range=["white"]),  # choose line color
+                ),
+            )
+        )
 
         st.altair_chart(scatter_gdp + reg_line, use_container_width=True)
     else:
         st.write("No data for the selected filters.")
+
 
 # -----------------------
 # Tab 2: Consumption vs Gini (Altair)
@@ -164,11 +183,14 @@ with tab2:
             .encode(
                 x=alt.X(
                     "cons_pct_gdp:Q",
-                    title="Final consumption expenditure (% of GDP)"
+                    title="Final consumption expenditure (% of GDP)",
                 ),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
-                color=alt.Color("Entity:N", title="Country",
-                                legend=alt.Legend(columns=2)),
+                color=alt.Color(
+                    "Entity:N",
+                    title="Country",
+                    legend=alt.Legend(columns=2),
+                ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
                     alt.Tooltip("Year:O", title="Year"),
@@ -181,9 +203,24 @@ with tab2:
             .interactive()
         )
 
-        reg_line2 = scatter_cons.transform_regression(
-            "cons_pct_gdp", "Gini coefficient"
-        ).mark_line(color="black")
+        reg_line2 = (
+            alt.Chart(df_view.assign(series="Regression line"))
+            .transform_regression(
+                "cons_pct_gdp",
+                "Gini coefficient",
+                as_=["cons_pct_gdp", "gini_pred"],
+            )
+            .mark_line(size=2)
+            .encode(
+                x="cons_pct_gdp:Q",
+                y="gini_pred:Q",
+                color=alt.Color(
+                    "series:N",
+                    title="",
+                    scale=alt.Scale(range=["white"]),  # choose line color
+                ),
+            )
+        )
 
         st.altair_chart(scatter_cons + reg_line2, use_container_width=True)
     else:
