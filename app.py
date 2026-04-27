@@ -132,10 +132,10 @@ with tab1:
                 x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                  "Region:N",
-                    title="Region",
-                      legend=alt.Legend(columns=2),
-                       scale=alt.Scale(scheme="tableau10"),
+                "Region:N",
+                  title="Region",
+                  legend=alt.Legend(columns=2),
+                  scale=alt.Scale(scheme="tableau10"),
                                 ),
                     # optional custom palette:
                     # scale=alt.Scale(scheme="tableau20"),
