@@ -124,6 +124,8 @@ with tab1:
                     "Entity:N",
                     title="Country",
                     legend=alt.Legend(columns=2),
+                    # optional custom palette:
+                    # scale=alt.Scale(scheme="tableau20"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
@@ -137,9 +139,9 @@ with tab1:
             .interactive()
         )
 
-        # Regression line with its own legend label and bright color
+        # Regression line with a fixed color, NOT in color legend
         reg_line = (
-            alt.Chart(df_view.assign(series="Regression line"))
+            alt.Chart(df_view)
             .transform_regression(
                 "log_gdp_pc",
                 "Gini coefficient",
@@ -149,17 +151,14 @@ with tab1:
             .encode(
                 x="log_gdp_pc:Q",
                 y="gini_pred:Q",
-                color=alt.Color(
-                    "series:N",
-                    title="",
-                    scale=alt.Scale(range=["deepskyblue"]),  # bright cyan
-                ),
+                color=alt.value("deepskyblue"),  # bright line, no legend
             )
         )
 
         st.altair_chart(scatter_gdp + reg_line, use_container_width=True)
     else:
         st.write("No data for the selected filters.")
+
 
 # -----------------------
 # Tab 2: Consumption vs Gini (Altair)
@@ -181,6 +180,7 @@ with tab2:
                     "Entity:N",
                     title="Country",
                     legend=alt.Legend(columns=2),
+                    # scale=alt.Scale(scheme="tableau20"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
@@ -195,7 +195,7 @@ with tab2:
         )
 
         reg_line2 = (
-            alt.Chart(df_view.assign(series="Regression line"))
+            alt.Chart(df_view)
             .transform_regression(
                 "cons_pct_gdp",
                 "Gini coefficient",
@@ -205,11 +205,7 @@ with tab2:
             .encode(
                 x="cons_pct_gdp:Q",
                 y="gini_pred:Q",
-                color=alt.Color(
-                    "series:N",
-                    title="",
-                    scale=alt.Scale(range=["deepskyblue"]),  # same bright cyan
-                ),
+                color=alt.value("deepskyblue"),
             )
         )
 
