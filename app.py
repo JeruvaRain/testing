@@ -87,6 +87,7 @@ st.write(
     "(% of GDP) relate to the Gini coefficient. Use the filters on "
     "the left to select countries and years. Hover over points in "
     "the charts to see details for each country–year."
+    "The blue line represents the regression result or the tendency"
 )
 
 st.write(f"Currently showing data for **{year_min}–{year_max}**.")
