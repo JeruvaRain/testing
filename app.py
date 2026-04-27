@@ -40,7 +40,7 @@ has_region = "Region" in df.columns
 # -----------------------
 st.sidebar.header("Filters")
 
-# Country multiselect (all countries available in the dataset)
+# Country multiselect
 all_countries = sorted(df["Entity"].unique())
 selected_countries = st.sidebar.multiselect(
     "Countries to display",
@@ -71,15 +71,12 @@ year_min, year_max = st.sidebar.slider(
 # -----------------------
 df_view = df.copy()
 
-# Filter by region (if Region exists and not "All")
 if has_region and selected_region != "All":
     df_view = df_view[df_view["Region"] == selected_region]
 
-# Then filter by selected countries (within that region)
 if selected_countries:
     df_view = df_view[df_view["Entity"].isin(selected_countries)]
 
-# Finally, filter by year range
 df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
 
 # -----------------------
@@ -140,14 +137,14 @@ with tab1:
                 x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    ("Region:N" if has_region else "Entity:N"),
-                    title=("Region" if has_region else "Country"),
+                    "Region:N",
+                    title="Region",
                     legend=alt.Legend(columns=2),
                     scale=alt.Scale(scheme="tableau10"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
-                    alt.Tooltip("Region:N", title="Region") if has_region else None,
+                    alt.Tooltip("Region:N", title="Region"),
                     alt.Tooltip("Year:O", title="Year"),
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
@@ -158,7 +155,6 @@ with tab1:
             .interactive()
         )
 
-        # Regression line with a fixed color, NOT in color legend
         reg_line = (
             alt.Chart(df_view)
             .transform_regression(
@@ -170,7 +166,7 @@ with tab1:
             .encode(
                 x="log_gdp_pc:Q",
                 y="gini_pred:Q",
-                color=alt.value("deepskyblue"),  # bright line, no legend
+                color=alt.value("deepskyblue"),
             )
         )
 
@@ -195,14 +191,14 @@ with tab2:
                 ),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    ("Region:N" if has_region else "Entity:N"),
-                    title=("Region" if has_region else "Country"),
+                    "Region:N",
+                    title="Region",
                     legend=alt.Legend(columns=2),
                     scale=alt.Scale(scheme="tableau10"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
-                    alt.Tooltip("Region:N", title="Region") if has_region else None,
+                    alt.Tooltip("Region:N", title="Region"),
                     alt.Tooltip("Year:O", title="Year"),
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
