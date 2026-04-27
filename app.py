@@ -11,6 +11,7 @@ import altair as alt
 # -----------------------
 @st.cache_data
 def load_data():
+    st.write("DEBUG columns:", df.columns.tolist())
     df = pd.read_csv("ineq_data.csv")
     df["Year"] = df["Year"].astype(int)
 
