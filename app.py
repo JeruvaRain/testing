@@ -13,6 +13,19 @@ import altair as alt
 def load_data():
     df = pd.read_csv("ineq_data.csv")
     df["Year"] = df["Year"].astype(int)
+
+    # Standardize column names to what the app expects
+    df = df.rename(columns={
+        "log_gdp_per_capita": "log_gdp_pc",
+        "Final consumption expenditure (% of GDP)": "cons_pct_gdp",
+        "gini": "Gini coefficient",  # adjust if needed
+        "gdp_per_capita": "GDP per capita",  # adjust if needed
+    })
+
+    # If log_gdp_pc is missing, create it
+    if "log_gdp_pc" not in df.columns and "GDP per capita" in df.columns:
+        df["log_gdp_pc"] = np.log(df["GDP per capita"])
+
     return df
 
 df = load_data()
