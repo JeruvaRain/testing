@@ -151,8 +151,7 @@ with tab1:
             )
             .properties(height=400)
             .interactive()
-        )
-
+        
         # Regression line with a fixed color, NOT in color legend
         reg_line = (
             alt.Chart(df_view)
