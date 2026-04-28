@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import altair as alt
+import pathlib
 
 # -----------------------
 # Load data
@@ -13,7 +14,6 @@ def load_data():
     df = pd.read_csv("ineq_data.csv")
     df["Year"] = df["Year"].astype(int)
 
-    # Standardize column names to what the app expects
     df = df.rename(columns={
         "log_gdp_per_capita": "log_gdp_pc",
         "Final consumption expenditure (% of GDP)": "cons_pct_gdp",
@@ -21,18 +21,28 @@ def load_data():
         "gdp_per_capita": "GDP per capita",
     })
 
-    # If log_gdp_pc is missing, create it
     if "log_gdp_pc" not in df.columns and "GDP per capita" in df.columns:
         df["log_gdp_pc"] = np.log(df["GDP per capita"])
 
     return df
+
+# Load the data ONCE, then use df everywhere below
+df = load_data()
+has_region = "Region" in df.columns
+
+# (Optional debug – you can delete these if you want)
+# csv_path = pathlib.Path("ineq_data.csv")
+# st.write("DEBUG CSV exists:", csv_path.exists())
+# with open(csv_path, "r") as f:
+#     first_line = f.readline().strip()
+# st.write("DEBUG header line:", first_line)
+# st.write("DEBUG columns:", df.columns.tolist())
 
 # -----------------------
 # Sidebar filters
 # -----------------------
 st.sidebar.header("Filters")
 
-# Country multiselect
 all_countries = sorted(df["Entity"].unique())
 selected_countries = st.sidebar.multiselect(
     "Countries to display",
@@ -40,14 +50,12 @@ selected_countries = st.sidebar.multiselect(
     default=all_countries[:10] if len(all_countries) > 10 else all_countries,
 )
 
-# Region selector
 if has_region:
     all_regions = ["All"] + sorted(df["Region"].dropna().unique())
     selected_region = st.sidebar.selectbox("Region", options=all_regions, index=0)
 else:
     selected_region = "All"
 
-# Year range slider
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
 year_min, year_max = st.sidebar.slider(
