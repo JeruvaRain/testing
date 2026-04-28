@@ -5,7 +5,14 @@ import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import altair as alt
+import pathlib
 
+csv_path = pathlib.Path("ineq_data.csv")
+st.write("DEBUG CSV exists:", csv_path.exists())
+with open(csv_path, "r") as f:
+    first_line = f.readline().strip()
+st.write("DEBUG header line:", first_line)
+st.write("DEBUG columns:", df.columns.tolist())
 # -----------------------
 # Load data
 # -----------------------
