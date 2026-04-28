@@ -29,20 +29,6 @@ def load_data():
     return df
 
 # -----------------------
-# Debug: confirm CSV and columns
-# -----------------------
-csv_path = pathlib.Path("ineq_data.csv")
-st.write("DEBUG CSV exists:", csv_path.exists())
-with open(csv_path, "r") as f:
-    first_line = f.readline().strip()
-st.write("DEBUG header line:", first_line)
-
-df = load_data()
-st.write("DEBUG columns:", df.columns.tolist())
-
-has_region = "Region" in df.columns
-
-# -----------------------
 # Sidebar filters
 # -----------------------
 st.sidebar.header("Filters")
