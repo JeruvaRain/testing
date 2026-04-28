@@ -47,7 +47,7 @@ all_countries = sorted(df["Entity"].unique())
 selected_countries = st.sidebar.multiselect(
     "Countries to display",
     options=all_countries,
-    default=all_countries[:10] if len(all_countries) > 10 else all_countries,
+    default=[]
 )
 
 if has_region:
