@@ -3,16 +3,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-import matplotlib.pyplot as plt
 import altair as alt
 import pathlib
 
-csv_path = pathlib.Path("ineq_data.csv")
-st.write("DEBUG CSV exists:", csv_path.exists())
-with open(csv_path, "r") as f:
-    first_line = f.readline().strip()
-st.write("DEBUG header line:", first_line)
-st.write("DEBUG columns:", df.columns.tolist())
 # -----------------------
 # Load data
 # -----------------------
@@ -25,8 +18,8 @@ def load_data():
     df = df.rename(columns={
         "log_gdp_per_capita": "log_gdp_pc",
         "Final consumption expenditure (% of GDP)": "cons_pct_gdp",
-        "gini": "Gini coefficient",        # adjust if needed
-        "gdp_per_capita": "GDP per capita" # adjust if needed
+        "gini": "Gini coefficient",
+        "gdp_per_capita": "GDP per capita",
     })
 
     # If log_gdp_pc is missing, create it
@@ -35,9 +28,16 @@ def load_data():
 
     return df
 
-df = load_data()
+# -----------------------
+# Debug: confirm CSV and columns
+# -----------------------
+csv_path = pathlib.Path("ineq_data.csv")
+st.write("DEBUG CSV exists:", csv_path.exists())
+with open(csv_path, "r") as f:
+    first_line = f.readline().strip()
+st.write("DEBUG header line:", first_line)
 
-# DEBUG: show columns once to confirm Region exists
+df = load_data()
 st.write("DEBUG columns:", df.columns.tolist())
 
 has_region = "Region" in df.columns
@@ -52,10 +52,10 @@ all_countries = sorted(df["Entity"].unique())
 selected_countries = st.sidebar.multiselect(
     "Countries to display",
     options=all_countries,
-    default=all_countries[:10] if len(all_countries) > 10 else all_countries
+    default=all_countries[:10] if len(all_countries) > 10 else all_countries,
 )
 
-# Region selector (includes "All" option)
+# Region selector
 if has_region:
     all_regions = ["All"] + sorted(df["Region"].dropna().unique())
     selected_region = st.sidebar.selectbox("Region", options=all_regions, index=0)
@@ -65,12 +65,11 @@ else:
 # Year range slider
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
-
 year_min, year_max = st.sidebar.slider(
     "Year range",
     min_value=min_year,
     max_value=max_year,
-    value=(min_year, max_year)
+    value=(min_year, max_year),
 )
 
 # -----------------------
@@ -126,12 +125,12 @@ with col3:
         st.metric("R² (current filters)", "N/A")
 
 # -----------------------
-# Tabs for different views
+# Tabs
 # -----------------------
 tab1, tab2, tab3 = st.tabs(["GDP vs Gini", "Consumption vs Gini", "Summary & Model"])
 
 # -----------------------
-# Tab 1: GDP vs Gini (Altair)
+# Tab 1: GDP vs Gini
 # -----------------------
 with tab1:
     st.subheader("GDP per capita vs inequality")
@@ -144,14 +143,14 @@ with tab1:
                 x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    "Region:N",
-                    title="Region",
+                    "Region:N" if has_region else "Entity:N",
+                    title="Region" if has_region else "Country",
                     legend=alt.Legend(columns=2),
                     scale=alt.Scale(scheme="tableau10"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
-                    alt.Tooltip("Region:N", title="Region"),
+                    alt.Tooltip("Region:N", title="Region") if has_region else alt.Tooltip("Entity:N", title="Country"),
                     alt.Tooltip("Year:O", title="Year"),
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
@@ -177,12 +176,12 @@ with tab1:
             )
         )
 
-        st.altair_chart(scatter_gdp + reg_line, use_container_width=True)
+        st.altair_chart(scatter_gdp + reg_line, width="stretch")
     else:
         st.write("No data for the selected filters.")
 
 # -----------------------
-# Tab 2: Consumption vs Gini (Altair)
+# Tab 2: Consumption vs Gini
 # -----------------------
 with tab2:
     st.subheader("Consumption share vs inequality")
@@ -198,14 +197,14 @@ with tab2:
                 ),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    "Region:N",
-                    title="Region",
+                    "Region:N" if has_region else "Entity:N",
+                    title="Region" if has_region else "Country",
                     legend=alt.Legend(columns=2),
                     scale=alt.Scale(scheme="tableau10"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
-                    alt.Tooltip("Region:N", title="Region"),
+                    alt.Tooltip("Region:N", title="Region") if has_region else alt.Tooltip("Entity:N", title="Country"),
                     alt.Tooltip("Year:O", title="Year"),
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
@@ -231,12 +230,12 @@ with tab2:
             )
         )
 
-        st.altair_chart(scatter_cons + reg_line2, use_container_width=True)
+        st.altair_chart(scatter_cons + reg_line2, width="stretch")
     else:
         st.write("No data for the selected filters.")
 
 # -----------------------
-# Tab 3: Summary table & model snapshot
+# Tab 3: Summary & model
 # -----------------------
 with tab3:
     st.subheader("Summary statistics for selected countries")
