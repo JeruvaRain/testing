@@ -47,10 +47,14 @@ selected_countries = st.sidebar.multiselect(
 )
 
 if has_region:
-    all_regions = ["All"] + sorted(df["Region"].dropna().unique())
-    selected_region = st.sidebar.selectbox("Region", options=all_regions, index=0)
+    all_regions = sorted(df["Region"].dropna().unique())
+    selected_region = st.sidebar.multiselect(
+        "Regions to display",
+        options=all_regions,
+        default=[] #empty = show all regions
+    )
 else:
-    selected_region = "All"
+    selected_region = []
 
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
@@ -67,13 +71,26 @@ year_min, year_max = st.sidebar.slider(
 
 df_view = df.copy()
 
-if has_region and selected_region != "All":
-    df_view = df_view[df_view["Region"] == selected_region]
+# Filter by selected regions if any
+if has_region and selected_regions:
+    df_view = df_view[df_view["Region"].isin(selected_regions)]
 
+# Filter by selected ountries if any
 if selected_countries:
     df_view = df_view[df_view["Entity"].isin(selected_countries)]
 
+# Year range filter
 df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
+
+# If more than one region in the filtered data --> color by region
+# If exaclty one region --> color by Entity
+
+if has region and not df_view.empty:
+    n_regions = df.view["Region"].nunique()
+else:
+    n_regions = 0
+color_field = "Region:N" if n_regions > 1 else "Entity:N"
+color title = "Region" if n_regions > 1 else "Country"
 
 # ------------------------------- #
 # Fit regression on filtered data #
@@ -137,14 +154,14 @@ with tab1:
                 x=alt.X("log_gdp_pc:Q", title="log(GDP per capita)"),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    "Region:N" if has_region else "Entity:N",
-                    title="Region" if has_region else "Country",
+                    color_field,
+                    title = color_title,
                     legend=alt.Legend(columns=2),
                     scale=alt.Scale(scheme="tableau10"),
                 ),
                 tooltip=[
                     alt.Tooltip("Entity:N", title="Country"),
-                    alt.Tooltip("Region:N", title="Region") if has_region else alt.Tooltip("Entity:N", title="Country"),
+                    alt.Tooltip("Region:N", title="Region") if has_region else None,
                     alt.Tooltip("Year:O", title="Year"),
                     alt.Tooltip("Gini coefficient:Q", title="Gini", format=".3f"),
                     alt.Tooltip("GDP per capita:Q", title="GDP pc", format=".0f"),
@@ -192,8 +209,8 @@ with tab2:
                 ),
                 y=alt.Y("Gini coefficient:Q", title="Gini coefficient"),
                 color=alt.Color(
-                    "Region:N" if has_region else "Entity:N",
-                    title="Region" if has_region else "Country",
+                    color_field,
+                    title = color_title,
                     legend=alt.Legend(columns=2),
                     scale=alt.Scale(scheme="tableau10"),
                 ),
