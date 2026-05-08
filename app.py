@@ -6,9 +6,10 @@ import statsmodels.api as sm
 import altair as alt
 import pathlib
 
-# -----------------------
-# Load data
-# -----------------------
+# ---------- #
+# Load data  #
+# ---------- #
+
 @st.cache_data
 def load_data():
     df = pd.read_csv("ineq_data.csv")
@@ -26,21 +27,16 @@ def load_data():
 
     return df
 
-# Load the data ONCE, then use df everywhere below
+# ------------------------------------------------ #
+# Load the data ONCE, then use df everywhere below #
+# ------------------------------------------------ #
+
 df = load_data()
 has_region = "Region" in df.columns
 
-# (Optional debug – you can delete these if you want)
-# csv_path = pathlib.Path("ineq_data.csv")
-# st.write("DEBUG CSV exists:", csv_path.exists())
-# with open(csv_path, "r") as f:
-#     first_line = f.readline().strip()
-# st.write("DEBUG header line:", first_line)
-# st.write("DEBUG columns:", df.columns.tolist())
-
-# -----------------------
-# Sidebar filters
-# -----------------------
+# --------------- #
+# Sidebar filters #
+# --------------- #
 st.sidebar.header("Filters")
 
 all_countries = sorted(df["Entity"].unique())
@@ -65,9 +61,10 @@ year_min, year_max = st.sidebar.slider(
     value=(min_year, max_year),
 )
 
-# -----------------------
-# Apply filters
-# -----------------------
+# ------------- #
+# Apply filters #
+# ------------- #
+
 df_view = df.copy()
 
 if has_region and selected_region != "All":
@@ -78,9 +75,10 @@ if selected_countries:
 
 df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
 
-# -----------------------
-# Fit regression on filtered data
-# -----------------------
+# ------------------------------- #
+# Fit regression on filtered data #
+# ------------------------------- #
+
 reg_data = df_view[["Gini coefficient", "log_gdp_pc", "cons_pct_gdp"]].dropna()
 
 if len(reg_data) > 10:
@@ -91,9 +89,10 @@ if len(reg_data) > 10:
 else:
     model = None
 
-# -----------------------
-# Layout: title, description, metrics
-# -----------------------
+# ----------------------------------- #
+# Layout: title, description, metrics #
+# ----------------------------------- #
+
 st.title("Inequality, Growth and Consumption")
 
 st.write(
@@ -117,14 +116,16 @@ with col3:
     else:
         st.metric("R² (current filters)", "N/A")
 
-# -----------------------
-# Tabs
-# -----------------------
+# ----- #
+# Tabs  #
+# ----- #
+
 tab1, tab2, tab3 = st.tabs(["GDP vs Gini", "Consumption vs Gini", "Summary & Model"])
 
-# -----------------------
-# Tab 1: GDP vs Gini
-# -----------------------
+# ------------------ #
+# Tab 1: GDP vs Gini #
+# ------------------ #
+
 with tab1:
     st.subheader("GDP per capita vs inequality")
 
@@ -173,9 +174,10 @@ with tab1:
     else:
         st.write("No data for the selected filters.")
 
-# -----------------------
-# Tab 2: Consumption vs Gini
-# -----------------------
+# -------------------------- #
+# Tab 2: Consumption vs Gini #
+# -------------------------- #
+
 with tab2:
     st.subheader("Consumption share vs inequality")
 
@@ -227,9 +229,10 @@ with tab2:
     else:
         st.write("No data for the selected filters.")
 
-# -----------------------
-# Tab 3: Summary & model
-# -----------------------
+# ----------------------- #
+# Tab 3: Summary & model  #
+# ----------------------- #
+
 with tab3:
     st.subheader("Summary statistics for selected countries")
 
