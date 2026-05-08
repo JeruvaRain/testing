@@ -85,7 +85,7 @@ df_view = df_view[(df_view["Year"] >= year_min) & (df_view["Year"] <= year_max)]
 # If more than one region in the filtered data --> color by region
 # If exaclty one region --> color by Entity
 
-if has region and not df_view.empty:
+if has_region and not df_view.empty:
     n_regions = df.view["Region"].nunique()
 else:
     n_regions = 0
