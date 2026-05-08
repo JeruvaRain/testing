@@ -90,7 +90,7 @@ if has_region and not df_view.empty:
 else:
     n_regions = 0
 color_field = "Region:N" if n_regions > 1 else "Entity:N"
-color title = "Region" if n_regions > 1 else "Country"
+color_title = "Region" if n_regions > 1 else "Country"
 
 # ------------------------------- #
 # Fit regression on filtered data #
