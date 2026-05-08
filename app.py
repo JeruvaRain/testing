@@ -48,7 +48,7 @@ selected_countries = st.sidebar.multiselect(
 
 if has_region:
     all_regions = sorted(df["Region"].dropna().unique())
-    selected_region = st.sidebar.multiselect(
+    selected_regions = st.sidebar.multiselect(
         "Regions to display",
         options=all_regions,
         default=[] #empty = show all regions
