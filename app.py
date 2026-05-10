@@ -302,56 +302,83 @@ st.markdown("---")
 st.header("Guía rápida para interpretar los gráficos")
 
 with st.expander("¿Qué es el PIB per cápita?"):
-    st.write(
-        "- El **PIB per cápita** es el valor total de bienes y servicios que produce un país "
-        "dividido entre su población. Es una medida aproximada del ingreso medio por persona.[web:480]\n\n"
-        "- En nuestros gráficos usamos el **logaritmo del PIB per cápita** para que los países muy ricos "
-        "no aplasten visualmente al resto y la nube de puntos sea más fácil de interpretar.\n\n"
-        "🔗 Referencia: una explicación accesible del PIB per cápita en Economipedia "
-        "(búsqueda: \"PIB per cápita Economipedia\").[web:480]"
+    st.markdown(
+        """
+- El **PIB per cápita** es el valor total de bienes y servicios que produce un país dividido entre su población; 
+  sirve como indicador aproximado del ingreso medio por persona.[web:494][web:498]
+
+- En nuestros gráficos usamos el **logaritmo del PIB per cápita** para que los países muy ricos no aplasten visualmente al resto 
+  y la nube de puntos sea más fácil de interpretar.
+
+🔗 Referencias:
+- [PIB per cápita – Concepto.de](https://concepto.de/pib-per-capita/)[web:494]
+- [Renta/PIB per cápita – Wikipedia](https://es.wikipedia.org/wiki/Renta_per_c%C3%A1pita)[web:498]
+        """
     )
 
 with st.expander("¿Qué es el coeficiente de Gini?"):
-    st.write(
-        "- El **coeficiente de Gini** mide qué tan desigual es la distribución del ingreso en un país.[web:473]\n\n"
-        "- Toma valores entre **0 y 1**: 0 significa igualdad perfecta (todas las personas tienen el mismo ingreso) "
-        "y 1 significa desigualdad máxima (una sola persona se lleva todo.\n\n"
-        "- En la práctica, los países suelen estar entre **0,25 y 0,65**: valores más altos implican más desigualdad.[web:475]\n\n"
-        "🔗 Referencias:\n"
-        "- Artículos introductorios sobre el coeficiente de Gini en sitios de divulgación económica.[web:474][web:475]"
+    st.markdown(
+        """
+- El **coeficiente de Gini** mide qué tan desigual es la distribución del ingreso (u otra variable) en una sociedad.[web:473][web:477]  
+- Va de **0 a 1**: 0 = igualdad total (todas las personas tienen el mismo ingreso), 1 = desigualdad máxima 
+  (una sola persona concentra todo).[web:489]
+
+- En la práctica, la mayoría de países se sitúa entre **0,25 y 0,65**: valores más altos implican más desigualdad.
+
+🔗 Referencias:
+- [Coeficiente de Gini – Wikipedia](https://es.wikipedia.org/wiki/Coeficiente_de_Gini)[web:473]
+- [¿Qué es el índice de Gini? – IFEMA](https://www.ifema.es/noticias/negocio/que-es-el-indice-de-gini)[web:477]
+        """
     )
 
 with st.expander("¿Cómo leer el gráfico PIB vs Gini?"):
-    st.write(
-        "- Cada punto representa un **país en un año concreto**: la posición horizontal muestra su PIB per cápita "
-        "y la posición vertical su desigualdad medida por el Gini.\n\n"
-        "- Si ves que los puntos se concentran hacia la derecha con valores de Gini más bajos, sugiere que "
-        "los países más ricos tienden a tener **menos desigualdad** (aunque siempre hay excepciones).[web:486]\n\n"
-        "🔗 Para más contexto sobre desigualdad económica y Gini, puedes consultar materiales introductorios "
-        "de economía que tratan la medición de la desigualdad.[web:486]"
+    st.markdown(
+        """
+- Cada punto es un **país en un año concreto**:
+  - Eje horizontal: PIB per cápita (en logaritmos).
+  - Eje vertical: desigualdad medida por el coeficiente de Gini.[web:486]
+
+- Si los puntos de los países más ricos (derecha) tienden a tener valores de Gini más bajos (parte baja), 
+  suele interpretarse como que **mayor nivel de ingreso medio se asocia con menor desigualdad**, 
+  siempre con excepciones y matices.
+
+🔗 Referencia:
+- Materiales introductorios sobre medición de desigualdad económica y Gini.[web:486]
+        """
     )
 
 with st.expander("¿Qué significa la línea de regresión?"):
-    st.write(
-        "- La línea azul es una **línea de regresión**: resume la relación promedio entre las variables "
-        "de cada gráfico.[web:478][web:487]\n\n"
-        "- No indica que el PIB o el consumo *causen* directamente la desigualdad; solo muestra la **tendencia media** "
-        "en los datos. Si la línea baja al movernos hacia la derecha, indica que, en promedio, "
-        "a mayor PIB per cápita, menor Gini.\n\n"
-        "- El valor de **R²** que mostramos arriba indica qué parte de la variación del Gini se puede "
-        "explicar por las variables incluidas en la regresión: valores cercanos a 1 implican un ajuste fuerte, "
-        "valores cercanos a 0, un ajuste débil.[web:478]\n\n"
-        "🔗 Referencias sobre gráficos de dispersión y líneas de regresión en materiales de estadística básica.[web:478][web:487]"
+    st.markdown(
+        """
+- La línea azul es una **línea de regresión**: resume la relación promedio entre las dos variables del gráfico 
+  (por ejemplo, PIB per cápita y Gini).[web:487][web:496]
+
+- No implica que el PIB o el consumo *causen* directamente la desigualdad; simplemente muestra una **tendencia media** 
+  en los datos. Si la línea desciende al movernos hacia la derecha, indica que, en promedio, 
+  a mayor PIB per cápita, menor Gini.
+
+- El **R²** que mostramos arriba indica qué parte de la variación del Gini se explica por las variables del modelo:  
+  valores cerca de 1 implican ajuste fuerte; valores cerca de 0, ajuste débil.[web:487]
+
+🔗 Referencias:
+- [Diagramas de dispersión – OpenStax](https://openstax.org/books/introducci%C3%B3n-estad%C3%ADstica/pages/12-2-diagramas-de-dispersion)[web:487]
+- [Gráfico de dispersión y regresión – JMP](https://www.jmp.com/es/statistics-knowledge-portal/exploratory-data-analysis/scatter-plot.html)[web:496]
+        """
     )
 
 with st.expander("¿Cómo interpretar Consumo vs Gini?"):
-    st.write(
-        "- En el gráfico de **Consumo vs Gini**, el eje horizontal muestra el gasto de consumo final como "
-        "porcentaje del PIB (aprox. cuánto del \"pastel\" económico se destina a consumo de hogares y sector público).[web:482][web:485]\n\n"
-        "- Al comparar esta variable con el Gini, buscamos ver si los países donde el consumo tiene "
-        "más peso en la economía tienden a ser **más o menos desiguales**.\n\n"
-        "- La línea de regresión en este gráfico resume si, en promedio, un mayor peso del consumo se asocia "
-        "con mayor o menor desigualdad.[web:485]\n\n"
-        "🔗 Para entender mejor el concepto de consumo final, puedes consultar definiciones de manuales de macroeconomía "
-        "o glosarios económicos.[web:485]"
+    st.markdown(
+        """
+- En el gráfico de **Consumo vs Gini**, el eje horizontal muestra el **gasto de consumo final como % del PIB** 
+  (aproximadamente, cuánto del “pastel económico” se destina al consumo de hogares y sector público).[web:493][web:482]
+
+- Al compararlo con el Gini, buscamos ver si los países donde el consumo tiene más peso en la economía 
+  tienden a ser **más o menos desiguales**.
+
+- La línea de regresión resume si, en promedio, un mayor peso del consumo se asocia con mayor o menor desigualdad.
+
+🔗 Referencias:
+- [Consumo final – glosario](https://www.cfp.pt/pt/glossario/consumo-final)[web:493]
+- Definiciones de consumo y demanda final en manuales y glosarios de macroeconomía.[web:495][web:499]
+        """
     )
