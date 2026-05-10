@@ -396,3 +396,10 @@ Referencias:
 - [Indicadores de gasto de consumo final – Banco Mundial](https://datos.bancomundial.org/indicador/NE.CON.TOTL.ZS)
         """
     )
+
+# -------------- #
+# 9. Adicionales #
+# -------------- #
+
+st.markdown("---")
+st.caption("Aplicación desarrollada por **Juan Rivera** usando datos del Banco Mundial y Our World in Data.")
