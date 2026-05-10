@@ -293,3 +293,65 @@ with tab3:
         st.dataframe(coef_df)
     else:
         st.write("No hay suficientes datos con los filtros actuales para estimar la regresión.")
+
+# ---------------------------------- #
+# 8. Módulo de ayuda y explicaciones #
+# ---------------------------------- #
+
+st.markdown("---")
+st.header("Guía rápida para interpretar los gráficos")
+
+with st.expander("¿Qué es el PIB per cápita?"):
+    st.write(
+        "- El **PIB per cápita** es el valor total de bienes y servicios que produce un país "
+        "dividido entre su población. Es una medida aproximada del ingreso medio por persona.[web:480]\n\n"
+        "- En nuestros gráficos usamos el **logaritmo del PIB per cápita** para que los países muy ricos "
+        "no aplasten visualmente al resto y la nube de puntos sea más fácil de interpretar.\n\n"
+        "🔗 Referencia: una explicación accesible del PIB per cápita en Economipedia "
+        "(búsqueda: \"PIB per cápita Economipedia\").[web:480]"
+    )
+
+with st.expander("¿Qué es el coeficiente de Gini?"):
+    st.write(
+        "- El **coeficiente de Gini** mide qué tan desigual es la distribución del ingreso en un país.[web:473]\n\n"
+        "- Toma valores entre **0 y 1**: 0 significa igualdad perfecta (todas las personas tienen el mismo ingreso) "
+        "y 1 significa desigualdad máxima (una sola persona se lleva todo.\n\n"
+        "- En la práctica, los países suelen estar entre **0,25 y 0,65**: valores más altos implican más desigualdad.[web:475]\n\n"
+        "🔗 Referencias:\n"
+        "- Artículos introductorios sobre el coeficiente de Gini en sitios de divulgación económica.[web:474][web:475]"
+    )
+
+with st.expander("¿Cómo leer el gráfico PIB vs Gini?"):
+    st.write(
+        "- Cada punto representa un **país en un año concreto**: la posición horizontal muestra su PIB per cápita "
+        "y la posición vertical su desigualdad medida por el Gini.\n\n"
+        "- Si ves que los puntos se concentran hacia la derecha con valores de Gini más bajos, sugiere que "
+        "los países más ricos tienden a tener **menos desigualdad** (aunque siempre hay excepciones).[web:486]\n\n"
+        "🔗 Para más contexto sobre desigualdad económica y Gini, puedes consultar materiales introductorios "
+        "de economía que tratan la medición de la desigualdad.[web:486]"
+    )
+
+with st.expander("¿Qué significa la línea de regresión?"):
+    st.write(
+        "- La línea azul es una **línea de regresión**: resume la relación promedio entre las variables "
+        "de cada gráfico.[web:478][web:487]\n\n"
+        "- No indica que el PIB o el consumo *causen* directamente la desigualdad; solo muestra la **tendencia media** "
+        "en los datos. Si la línea baja al movernos hacia la derecha, indica que, en promedio, "
+        "a mayor PIB per cápita, menor Gini.\n\n"
+        "- El valor de **R²** que mostramos arriba indica qué parte de la variación del Gini se puede "
+        "explicar por las variables incluidas en la regresión: valores cercanos a 1 implican un ajuste fuerte, "
+        "valores cercanos a 0, un ajuste débil.[web:478]\n\n"
+        "🔗 Referencias sobre gráficos de dispersión y líneas de regresión en materiales de estadística básica.[web:478][web:487]"
+    )
+
+with st.expander("¿Cómo interpretar Consumo vs Gini?"):
+    st.write(
+        "- En el gráfico de **Consumo vs Gini**, el eje horizontal muestra el gasto de consumo final como "
+        "porcentaje del PIB (aprox. cuánto del \"pastel\" económico se destina a consumo de hogares y sector público).[web:482][web:485]\n\n"
+        "- Al comparar esta variable con el Gini, buscamos ver si los países donde el consumo tiene "
+        "más peso en la economía tienden a ser **más o menos desiguales**.\n\n"
+        "- La línea de regresión en este gráfico resume si, en promedio, un mayor peso del consumo se asocia "
+        "con mayor o menor desigualdad.[web:485]\n\n"
+        "🔗 Para entender mejor el concepto de consumo final, puedes consultar definiciones de manuales de macroeconomía "
+        "o glosarios económicos.[web:485]"
+    )
