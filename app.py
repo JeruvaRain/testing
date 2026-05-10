@@ -5,9 +5,9 @@ import numpy as np
 import statsmodels.api as sm
 import altair as alt
 
-# ---------- #
-# Cargar datos
-# ---------- #
+# --------------- #
+# 1. Cargar datos #
+# --------------- #
 
 @st.cache_data
 def load_data():
@@ -26,16 +26,16 @@ def load_data():
 
     return df
 
-# ----------------------------------------- #
-# Cargar los datos UNA VEZ y usar df abajo  #
-# ----------------------------------------- #
+# -------------------------------------------- #
+# 2. Cargar los datos UNA VEZ y usar df abajo  #
+# -------------------------------------------- #
 
 df = load_data()
 has_region = "Region" in df.columns
 
-# ----------------- #
-# Filtros laterales #
-# ----------------- #
+# -------------------- #
+# 3. Filtros laterales #
+# -------------------- #
 
 st.sidebar.header("Filtros")
 
@@ -68,9 +68,9 @@ year_min, year_max = st.sidebar.slider(
     value=(min_year, max_year),
 )
 
-# ------------- #
-# Aplicar filtros
-# ------------- #
+# ------------------ #
+# 4. Aplicar filtros #
+# ------------------ #
 
 df_view = df.copy()
 
@@ -96,9 +96,9 @@ else:
 color_field = "Region:N" if n_regions > 1 else "Entity:N"
 color_title = "Región" if n_regions > 1 else "País"
 
-# ------------------------------------ #
-# Regresión con los datos filtrados    #
-# ------------------------------------ #
+# --------------------------------------- #
+# 5. Regresión con los datos filtrados    #
+# --------------------------------------- #
 
 reg_data = df_view[["Gini coefficient", "log_gdp_pc", "cons_pct_gdp"]].dropna()
 
@@ -110,9 +110,9 @@ if len(reg_data) > 10:
 else:
     model = None
 
-# ------------------------------- #
-# Título, descripción y métricas #
-# ------------------------------- #
+# -------------------------------- #
+# 6. ítulo, descripción y métricas #
+# -------------------------------- #
 
 st.title("Desigualdad, crecimiento y consumo")
 
@@ -137,15 +137,14 @@ with col3:
     else:
         st.metric("R² (filtros actuales)", "N/D")
 
-# ----- #
-# Pestañas
-# ----- #
+# ----------- #
+# 7. Pestañas #
+# ----------- #
 
 tab1, tab2, tab3 = st.tabs(["PIB vs Gini", "Consumo vs Gini", "Resumen y modelo"])
 
-# ---------------------- #
+
 # Pestaña 1: PIB vs Gini #
-# ---------------------- #
 
 with tab1:
     st.subheader("PIB per cápita vs desigualdad")
@@ -195,9 +194,8 @@ with tab1:
     else:
         st.write("No hay datos para los filtros seleccionados.")
 
-# ---------------------------- #
+
 # Pestaña 2: Consumo vs Gini   #
-# ---------------------------- #
 
 with tab2:
     st.subheader("Cuota de consumo vs desigualdad")
@@ -250,9 +248,8 @@ with tab2:
     else:
         st.write("No hay datos para los filtros seleccionados.")
 
-# ------------------------------ #
+
 # Pestaña 3: Resumen y modelo    #
-# ------------------------------ #
 
 with tab3:
     st.subheader("Estadísticos resumidos (filtros actuales)")
