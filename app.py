@@ -128,14 +128,31 @@ st.write(f"Actualmente se muestran datos para **{year_min}–{year_max}**.")
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Países en la vista", df_view["Entity"].nunique())
+    st.metric(
+        label="Países en la vista", 
+        value=df_view["Entity"].nunique(),
+        help="Número de países distintos que aparecen en la base de datos"
+    )
 with col2:
-    st.metric("Observaciones", len(df_view))
+    st.metric(
+        label="Observaciones",
+        value=len(df_view),
+        help="Número total de filas (país-año) utilizadas"
+        )
 with col3:
     if model is not None:
-        st.metric("R² (filtros actuales)", f"{model.rsquared:.3f}")
+        st.metric(
+            label="R² (filtros actuales)",
+            value=f"{model.rsquared:.3f}",
+            help="R² (coeficiente de determinación): mide qué proporción de la variación del coeficiente de Gini\n"
+            "es explicada por las variables del modelo (log(PIB per cápita) y consumo % PIB) con los filtros actuales".
+            )
     else:
-        st.metric("R² (filtros actuales)", "N/D")
+        st.metric(
+            label="R² (filtros actuales)",
+            value="N/D",
+            help="No se muestra R² poque no hay suficientes datos con los filtros actuales para estimar la regresión."
+            )
 
 # ----------- #
 # 7. Pestañas #
