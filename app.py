@@ -144,9 +144,10 @@ with col3:
         st.metric(
             label="R² (filtros actuales)",
             value=f"{model.rsquared:.3f}",
-            help="R² (coeficiente de determinación): mide qué proporción de la variación del coeficiente de Gini\n"
+            help=("R² (coeficiente de determinación): mide qué proporción de la variación del coeficiente de Gini\n"
             "es explicada por las variables del modelo (log(PIB per cápita) y consumo % PIB) con los filtros actuales".
             )
+        )
     else:
         st.metric(
             label="R² (filtros actuales)",
